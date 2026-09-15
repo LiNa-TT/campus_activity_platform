@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title th:text="${consultation.title}">资讯</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+<div class="detail">
+<h1 th:text="${consultation.title}"></h1>
+<small style="color:#999" th:text="${consultation.publishTime}"></small>
+<div th:text="${consultation.content}" style="margin-top:12px"></div>
+</div>
+<a class="btn" href="/consultations">返回资讯列表</a>
+</main>
+</body></html>

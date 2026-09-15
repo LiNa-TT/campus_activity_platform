@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>工会活动管理</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+<h1>工会活动归档与统计</h1>
+<div th:if="${message}" class="alert alert-ok" th:text="${message}"></div>
+<table th:if="${!activities.isEmpty()}">
+<tr><th>标题</th><th>分类</th><th>状态</th><th>报名数</th><th>归档</th><th>操作</th></tr>
+<tr th:each="a:${activities}">
+<td th:text="${a.title}"></td><td th:text="${a.category}"></td><td th:text="${a.status}"></td>
+<td th:text="${stat[a.id]}"></td>
+<td th:text="${a.archived}?'已归档':'未归档'"></td>
+<td>
+<form method="post" th:action="@{'/admin/union/archive/'+${a.id}}" style="display:inline">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<button class="btn-sm btn-gray" th:text="${a.archived?'取消归档':'归档'}"></button>
+</form>
+<a class="btn-sm" th:href="@{'/admin/activity/stat/'+${a.id}}">查看报名</a>
+</td></tr></table>
+<p class="empty" th:if="${activities.isEmpty()}">暂无工会活动</p>
+<a class="btn" href="/admin">返回后台</a>
+</main>
+</body></html>

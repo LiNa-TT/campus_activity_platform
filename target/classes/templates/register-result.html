@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>报名结果</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main class="center" style="margin-top:120px">
+<h1 th:text="${message}"></h1>
+<p>
+<a class="btn" href="/">返回首页</a>
+<a class="btn btn-gray" href="/activities">返回活动中心</a>
+<a class="btn btn-gray" sec:authorize="isAuthenticated()" href="/my-registrations">查看我的报名</a>
+</p>
+</main>
+</body></html>

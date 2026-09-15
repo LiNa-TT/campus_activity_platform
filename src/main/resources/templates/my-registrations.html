@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>我的报名</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main><h1>我的报名</h1>
+<div th:if="${message}" class="alert alert-ok" th:text="${message}"></div>
+<table th:if="${!registrations.isEmpty()}">
+<tr><th>活动</th><th>分类</th><th>签到状态</th><th>报名时间</th><th>报名状态</th><th>活动反馈</th></tr>
+<tr th:each="r:${registrations}">
+<td th:text="${r.activity.title}"></td>
+<td th:text="${r.activity.category}"></td>
+<td th:text="${r.attendance}"></td>
+<td th:text="${r.registerTime}"></td>
+<td th:text="${r.status}"></td>
+<td>
+<span th:if="${r.feedbackRating!=null}" th:text="'★'+${r.feedbackRating}+' '+${r.feedbackComment}"></span>
+<!-- 模块1讲座：收集活动反馈 -->
+<form method="post" th:if="${r.activity.category=='讲座' and r.feedbackRating==null}" action="/activity/feedback" style="display:flex;gap:6px;flex-wrap:wrap">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input type="hidden" name="registrationId" th:value="${r.id}">
+<select name="rating"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select>
+<input name="comment" placeholder="反馈意见">
+<button class="btn-sm">提交反馈</button>
+</form>
+</td>
+</tr></table>
+<p class="empty" th:if="${registrations.isEmpty()}">暂无报名记录</p>
+</main>
+</body></html>

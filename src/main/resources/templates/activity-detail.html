@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>活动详情</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+<div class="detail">
+<span class="cat-tag" th:text="${activity.category}"></span>
+<span class="top-flag" th:if="${activity.archived}">[已归档]</span>
+<h1 th:text="${activity.title}"></h1>
+<p>主办：<span th:text="${activity.organizer}"></span></p>
+<p>时间：<span th:text="${activity.startTime}"></span> 至 <span th:text="${activity.endTime}"></span></p>
+<p>地点：<span th:text="${activity.location}"></span></p>
+<p>人数：<span th:text="${activity.enrolledPeople}"></span>/<span th:text="${activity.maxPeople}"></span></p>
+<p>状态：<span th:text="${activity.status}"></span></p>
+
+<!-- 模块1 讲座特有 -->
+<p th:if="${activity.category=='讲座' and activity.speaker!=null}">主讲人：<span th:text="${activity.speaker}"></span></p>
+<p th:if="${activity.category=='讲座' and activity.department!=null}">所属院系：<span th:text="${activity.department}"></span></p>
+
+<!-- 模块3 竞赛特有 -->
+<p th:if="${activity.category=='竞赛' and activity.requirements!=null}">参赛要求：<span th:text="${activity.requirements}"></span></p>
+<p th:if="${activity.category=='竞赛' and activity.registrationDeadline!=null}">报名截止：<span th:text="${activity.registrationDeadline}"></span></p>
+<div th:if="${activity.scheduleInfo!=null and (activity.category=='竞赛' or activity.category=='校运会' or activity.category=='教职工文体')}">
+<p><b>赛程/流程安排：</b></p><pre th:text="${activity.scheduleInfo}"></pre></div>
+
+<!-- 模块4 校运会 / 模块7 教职工文体 -->
+<div th:if="${activity.resultsInfo!=null}">
+<p><b>成绩公示：</b></p><pre th:text="${activity.resultsInfo}"></pre></div>
+<div th:if="${activity.awardsInfo!=null}">
+<p><b>表彰/获奖公告：</b></p><pre th:text="${activity.awardsInfo}"></pre></div>
+
+<p th:if="${activity.description!=null}" th:text="${activity.description}"></p>
+<img th:if="${activity.coverUrl!=null and !activity.coverUrl.isEmpty()}" th:src="${activity.coverUrl}" alt="海报" style="max-width:300px;border-radius:8px">
+</div>
+
+<div class="panel" sec:authorize="isAuthenticated()">
+<h2>在线报名</h2>
+<form method="post" action="/activity/register">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input type="hidden" name="activityId" th:value="${activity.id}">
+<input type="hidden" name="studentNo" th:value="${currentUser?.userNo}">
+<input type="hidden" name="studentName" th:value="${currentUser?.name}">
+<button>立即报名</button>
+</form>
+</div>
+<div class="panel" sec:authorize="isAnonymous()">
+<p>请先 <a href="/login" class="btn">登录</a> 后报名</p>
+</div>
+</main>
+</body></html>

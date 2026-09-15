@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>后台管理</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+<h1>后台管理 <span class="role-badge" th:text="${currentUser?.role}"></span></h1>
+<div th:if="${message}" class="alert alert-ok" th:text="${message}"></div>
+<div th:if="${error}" class="alert alert-err" th:text="${error}"></div>
+<p sec:authorize="hasAnyRole('ADMIN','UNION_ADMIN')"><a class="btn-sm" href="/admin/union">工会活动归档与统计</a></p>
+
+<!-- ========== 活动发布/编辑（模块1/2/3/4/5/7） ========== -->
+<div class="sec-section">
+<h2 th:text="${editActivity!=null}?'编辑活动':'发布活动'"></h2>
+<form method="post" action="/admin/activity/save" class="admin-form">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input type="hidden" name="id" th:value="${editActivity?.id}">
+<input name="title" required placeholder="活动名称" th:value="${editActivity?.title}">
+<select name="category" required>
+<option value="">选择分类</option>
+<option th:each="c:${allowedCategories}" th:value="${c}" th:text="${c}" th:selected="${c==editActivity?.category}"></option>
+</select>
+<input name="organizer" placeholder="主办单位" th:value="${editActivity?.organizer}">
+<input name="location" placeholder="地点" th:value="${editActivity?.location}">
+<input name="startTime" type="datetime-local" th:value="${editActivity?.startTime!=null?#temporals.format(editActivity.startTime,'yyyy-MM-dd''T''HH:mm'):''}">
+<input name="endTime" type="datetime-local" th:value="${editActivity?.endTime!=null?#temporals.format(editActivity.endTime,'yyyy-MM-dd''T''HH:mm'):''}">
+<input name="maxPeople" type="number" placeholder="人数上限" th:value="${editActivity?.maxPeople}">
+<input name="coverUrl" placeholder="活动海报图片URL" th:value="${editActivity?.coverUrl}">
+<select name="status">
+<option th:selected="${editActivity?.status==null or editActivity?.status=='报名中'}">报名中</option>
+<option th:selected="${editActivity?.status=='已结束'}">已结束</option>
+<option th:selected="${editActivity?.status=='未开始'}">未开始</option>
+</select>
+<label><input type="checkbox" name="recommended" value="true" th:checked="${editActivity?.recommended}">推荐</label>
+<!-- 模块1讲座 -->
+<input name="speaker" placeholder="主讲人(讲座)" th:value="${editActivity?.speaker}">
+<input name="department" placeholder="所属院系(讲座)" th:value="${editActivity?.department}">
+<!-- 模块3竞赛 -->
+<input name="registrationDeadline" type="datetime-local" placeholder="报名截止(竞赛)" th:value="${editActivity?.registrationDeadline!=null?#temporals.format(editActivity.registrationDeadline,'yyyy-MM-dd''T''HH:mm'):''}">
+<input name="requirements" placeholder="参赛要求(竞赛)" th:value="${editActivity?.requirements}">
+<!-- 通用赛程/成绩/表彰(模块3/4/7) -->
+<textarea name="scheduleInfo" placeholder="赛程/流程安排(竞赛/校运会/教职工文体)"><th:block th:text="${editActivity?.scheduleInfo}"></th:block></textarea>
+<textarea name="resultsInfo" placeholder="成绩公示(校运会/教职工文体)"><th:block th:text="${editActivity?.resultsInfo}"></th:block></textarea>
+<textarea name="awardsInfo" placeholder="表彰/获奖公告(校运会/教职工文体)"><th:block th:text="${editActivity?.awardsInfo}"></th:block></textarea>
+<textarea name="description" placeholder="活动简介"><th:block th:text="${editActivity?.description}"></th:block></textarea>
+<button th:text="${editActivity!=null}?'保存修改':'发布活动'"></button>
+<a th:if="${editActivity!=null}" class="btn-sm btn-gray" href="/admin">取消编辑</a>
+</form>
+</div>
+
+<!-- ========== 活动列表 ========== -->
+<div class="sec-section">
+<h2>活动列表</h2>
+<table><tr><th>ID</th><th>标题</th><th>分类</th><th>状态</th><th>已报/上限</th><th>操作</th></tr>
+<tr th:each="a:${activities}">
+<td th:text="${a.id}"></td><td th:text="${a.title}"></td><td th:text="${a.category}"></td>
+<td th:text="${a.status}"></td><td th:text="${a.enrolledPeople}+'/'+(${a.maxPeople?:'-'})"></td>
+<td>
+<a class="btn-sm" th:href="@{'/admin/activity/stat/'+${a.id}}">统计</a>
+<a class="btn-sm btn-gray" th:href="@{'/admin?edit='+${a.id}}">编辑</a>
+<form method="post" th:action="@{'/admin/activity/delete/'+${a.id}}" style="display:inline">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<button class="btn-sm btn-danger">删除</button>
+</form>
+</td></tr></table>
+<p class="empty" th:if="${activities.isEmpty()}">暂无活动</p>
+</div>
+
+<!-- ========== 模块8 热点新闻（仅ADMIN） ========== -->
+<div class="sec-section" sec:authorize="hasRole('ADMIN')">
+<h2>热点新闻管理</h2>
+<form method="post" action="/admin/news/save" class="admin-form">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input name="title" required placeholder="新闻标题">
+<select name="category">
+<option>校园通知</option><option>教育热点</option><option>时政新闻</option><option>竞赛通知</option><option>就业资讯</option>
+</select>
+<input name="source" required placeholder="来源(必填)">
+<input name="coverUrl" placeholder="封面图片URL">
+<input name="content" placeholder="正文">
+<label><input type="checkbox" name="top" value="true">置顶</label>
+<button>发布新闻</button>
+</form>
+<table th:if="${newsList!=null}"><tr><th>标题</th><th>分类</th><th>来源</th><th>发布时间</th><th>操作</th></tr>
+<tr th:each="n:${newsList}"><td th:text="${n.title}"></td><td th:text="${n.category}"></td>
+<td th:text="${n.source}"></td><td th:text="${n.publishTime}"></td>
+<td>
+<form method="post" th:action="@{'/admin/news/top/'+${n.id}}" style="display:inline">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<button class="btn-sm btn-gray" th:text="${n.top?'取消置顶':'置顶'}"></button>
+</form>
+<form method="post" th:action="@{'/admin/news/delete/'+${n.id}}" style="display:inline">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<button class="btn-sm btn-danger">删除</button>
+</form>
+</td></tr></table>
+</div>
+
+<!-- ========== 模块6 活动咨询（ADMIN/EVENT_ADMIN） ========== -->
+<div class="sec-section" sec:authorize="hasAnyRole('ADMIN','EVENT_ADMIN')">
+<h2>活动咨询管理</h2>
+<form method="post" action="/admin/consult/save" class="admin-form">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input name="title" required placeholder="资讯标题">
+<input name="content" placeholder="资讯正文">
+<button>发布资讯</button>
+</form>
+<table th:if="${consultations!=null}"><tr><th>标题</th><th>发布时间</th><th>操作</th></tr>
+<tr th:each="c:${consultations}"><td th:text="${c.title}"></td><td th:text="${c.publishTime}"></td>
+<td><form method="post" th:action="@{'/admin/consult/delete/'+${c.id}}" style="display:inline">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<button class="btn-sm btn-danger">删除</button>
+</form></td></tr></table>
+</div>
+</main>
+</body></html>

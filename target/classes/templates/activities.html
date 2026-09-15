@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>活动中心</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main><h1>活动中心</h1>
+<form class="filter" action="/activities" method="get">
+<input name="keyword" th:value="${keyword}" placeholder="活动名称">
+<select name="category">
+<option value="">全部分类</option>
+<option th:each="c:${categories}" th:value="${c}" th:text="${c}" th:selected="${c==category}"></option>
+</select>
+<button>查询</button>
+</form>
+
+<div class="grid" th:if="${!activities.isEmpty()}">
+<article class="card" th:each="a:${activities}">
+<img th:if="${a.coverUrl!=null and !a.coverUrl.isEmpty()}" th:src="${a.coverUrl}" alt="海报">
+<h3 th:text="${a.title}"></h3>
+<p><span class="cat-tag" th:text="${a.category}"></span> <span th:if="${a.archived}" class="top-flag">[已归档]</span></p>
+<p>主办：<span th:text="${a.organizer}"></span></p>
+<p>地点：<span th:text="${a.location}"></span></p>
+<p>时间：<span th:text="${a.startTime}"></span></p>
+<p>状态：<span th:text="${a.status}"></span></p>
+<a class="btn" th:href="@{'/activities/'+${a.id}}">查看详情</a>
+</article>
+</div>
+<p class="empty" th:if="${activities.isEmpty()}">暂无符合条件的活动</p>
+
+<ul class="pagination" th:if="${page!=null and page.totalPages>1}">
+<li><a th:href="@{/activities(keyword=${keyword},category=${category},page=1)}">首页</a></li>
+<li th:if="${page.hasPrevious()}"><a th:href="@{/activities(keyword=${keyword},category=${category},page=${page.number})}">上一页</a></li>
+<li th:each="i:${#numbers.sequence(1,page.totalPages)}">
+<a th:href="@{/activities(keyword=${keyword},category=${category},page=${i})}" th:text="${i}" th:classappend="${i==page.number+1}?'active':''"></a>
+</li>
+<li th:if="${page.hasNext()}"><a th:href="@{/activities(keyword=${keyword},category=${category},page=${page.number+2})}">下一页</a></li>
+<li><a th:href="@{/activities(keyword=${keyword},category=${category},page=${page.totalPages})}">末页</a></li>
+</ul>
+</main>
+</body></html>

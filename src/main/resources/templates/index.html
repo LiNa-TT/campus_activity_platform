@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8"><title>校园活动聚合平台</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+<section class="hero"><h1>发现校园精彩活动</h1><p>讲座、社团、竞赛、校运会、工会、教职工文体活动，一站式查看与报名。</p>
+<form action="/activities"><input name="keyword" placeholder="搜索活动名称"><button>搜索</button></form></section>
+
+<h2>推荐活动</h2>
+<div class="grid" th:if="${!activities.isEmpty()}">
+<article class="card" th:each="a:${activities}">
+<img th:if="${a.coverUrl!=null and !a.coverUrl.isEmpty()}" th:src="${a.coverUrl}" alt="封面">
+<h3 th:text="${a.title}"></h3>
+<p><span class="cat-tag" th:text="${a.category}"></span></p>
+<p>地点：<span th:text="${a.location}"></span></p>
+<p>时间：<span th:text="${a.startTime}"></span></p>
+<a class="btn" th:href="@{'/activities/'+${a.id}}">查看详情</a>
+</article>
+</div>
+<p class="empty" th:if="${activities.isEmpty()}">暂无推荐活动</p>
+
+<h2>热点新闻</h2>
+<div class="news" th:each="n:${news}">
+<span class="cat-tag" th:text="${n.category}"></span>
+<span class="top-flag" th:if="${n.top}">[置顶]</span>
+<b style="margin-left:8px" th:text="${n.title}"></b>
+<span th:text="${n.source!=null?'来源：'+n.source:''}"></span>
+<p th:text="${n.content}"></p>
+<a class="btn-sm btn-gray" th:href="@{'/news/'+${n.id}}">查看全文</a>
+</div>
+</main>
+</body></html>

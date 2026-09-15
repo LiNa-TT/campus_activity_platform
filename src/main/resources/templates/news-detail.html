@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title th:text="${news.title}">新闻</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+<div class="detail">
+<span class="cat-tag" th:text="${news.category}"></span>
+<span class="top-flag" th:if="${news.top}">[置顶]</span>
+<h1 th:text="${news.title}"></h1>
+<p>来源：<span th:text="${news.source}"></span> | 发布时间：<span th:text="${news.publishTime}"></span></p>
+<img th:if="${news.coverUrl!=null and !news.coverUrl.isEmpty()}" th:src="${news.coverUrl}" style="max-width:400px;border-radius:8px;display:block;margin:12px 0">
+<div th:text="${news.content}"></div>
+</div>
+<a class="btn" href="/news">返回新闻列表</a>
+</main>
+</body></html>

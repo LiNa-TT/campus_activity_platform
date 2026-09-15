@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>热点新闻</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main><h1>热点新闻</h1>
+<form class="filter" action="/news" method="get">
+<select name="category">
+<option value="">全部分类</option>
+<option th:each="c:${categories}" th:value="${c}" th:text="${c}" th:selected="${c==currentCategory}"></option>
+</select>
+<button>筛选</button></form>
+<p class="empty" th:if="${newsList.isEmpty()}">暂无新闻</p>
+<div class="news" th:each="n:${newsList}">
+<img th:if="${n.coverUrl!=null and !n.coverUrl.isEmpty()}" th:src="${n.coverUrl}">
+<div style="display:inline-block;width:80%;vertical-align:middle">
+<span class="cat-tag" th:text="${n.category}"></span>
+<span class="top-flag" th:if="${n.top}">[置顶]</span>
+<b style="margin-left:8px" th:text="${n.title}"></b>
+<span style="color:#777;margin-left:8px" th:if="${n.source!=null}" th:text="'来源：'+${n.source}"></span>
+<p th:text="${n.content}"></p>
+<a class="btn-sm btn-gray" th:href="@{'/news/'+${n.id}}">查看全文</a>
+</div>
+</div>
+</main>
+</body></html>

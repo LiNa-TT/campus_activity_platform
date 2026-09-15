@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>我的订阅</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main><h1>分类订阅</h1>
+<p style="color:#666">订阅后，该分类有新活动发布时将自动推送消息提醒给您。</p>
+<div class="sec-section">
+<h2>可订阅分类</h2>
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<form th:each="c:${categories}" method="post" action="/subscriptions/subscribe" style="display:inline">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input type="hidden" name="category" th:value="${c}">
+<button th:text="'＋ 订阅 '+${c}"></button>
+</form>
+</div>
+</div>
+<div class="sec-section">
+<h2>已订阅分类</h2>
+<p class="empty" th:if="${mine.isEmpty()}">暂未订阅任何分类</p>
+<table th:if="${!mine.isEmpty()}"><tr><th>分类</th><th>操作</th></tr>
+<tr th:each="s:${mine}"><td th:text="${s.category}"></td>
+<td><form method="post" action="/subscriptions/unsubscribe">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<input type="hidden" name="category" th:value="${s.category}">
+<button class="btn-sm btn-danger">取消订阅</button>
+</form></td></tr></table>
+</div>
+</main>
+</body></html>
